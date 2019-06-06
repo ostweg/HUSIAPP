@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">HusiApp2</string>
+    <string name="name">Lastname</string>
+    <string name="vorname">Firstname</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="submit">Submit</string>
+    <string name="register">Register</string>
+    <string name="add_homework">Add Homework</string>
+    <string name="title">Title</string>
+    <string name="Hwclass">Class</string>
+    <string name="expire_date">Expire Date</string>
+    <string name="date_to_notify">Date to notify</string>
+</resources>
