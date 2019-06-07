@@ -25,9 +25,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <receiver android:name=".AlertReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.husiapp2.START_ALARM" >
+                </action>
+            </intent-filter>
+        </receiver>
         <service
-            android:name=".MusicJobService"
+            android:name=".DeleteJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 

@@ -1,10 +1,14 @@
 package com.example.husiapp2;
 
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.app.AlarmManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -27,17 +31,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class AddHwActivity extends AppCompatActivity {
 
-
+    public AddHwActivity(){}
     EditText Title,Class, ExpireDate, DateToNotify;
     final Calendar calendar = Calendar.getInstance();
     final Calendar calendar1 = Calendar.getInstance();
     Homework homework;
     String date_time;
+    Calendar cal;
     private static final String TAG = "AddHwActivity";
+    private static final String Channel_ID ="test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,20 +122,28 @@ public class AddHwActivity extends AppCompatActivity {
         final String Hclass = Class.getText().toString();
         final String Hdate = ExpireDate.getText().toString();
         final String Hnotify = DateToNotify.getText().toString();
-        final ComponentName comp = new ComponentName(this,MusicJobService.class);
+        final ComponentName comp = new ComponentName(this, DeleteJobService.class);
 
         if(!TextUtils.isEmpty(Htitle) || !TextUtils.isEmpty(Hclass) || !TextUtils.isEmpty(Hdate)){
             homework = new Homework(Htitle,Hclass,Hdate,Hnotify);
-            MusicJobService.CompareDates(Hnotify);
+            DeleteJobService.IsExpired(Hdate,Htitle);
             FirebaseDatabase.getInstance().getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Homework").push().setValue(homework).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
                         Toast.makeText(AddHwActivity.this, "Homework added", Toast.LENGTH_SHORT).show();
+                        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy hh:mm");
+                        try {
+                            Date date = sdf.parse(Hnotify);
+                            StartAlarm(date);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        //Zgliche für Hdate mache
                         JobInfo info = new JobInfo.Builder(Htitle.length(),comp)
                                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
                                 .setPersisted(true)
-                                .setPeriodic(15 * 60 * 1000)
+                                .setPeriodic(60 * 60 * 1000)
                                 .build();
                         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                         int res = scheduler.schedule(info);
@@ -156,6 +171,19 @@ public class AddHwActivity extends AppCompatActivity {
             DateToNotify.setHintTextColor(Color.RED);
         }
     }
+    public void StartAlarm(Date date){
+        Log.d(TAG,"Alarm started");
+        long timeinms = date.getTime();
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this,AlertReceiver.class);
+        PendingIntent pintent = PendingIntent.getBroadcast(this,1,intent,0);
+        if(date.before(new Date())){
+            Toast.makeText(this,"Notification will not occur: Date is in the past",Toast.LENGTH_SHORT).show();
+        }else {
+            alarm.setExact(AlarmManager.RTC_WAKEUP,timeinms,pintent);
+        }
+    }
+
 
 
 

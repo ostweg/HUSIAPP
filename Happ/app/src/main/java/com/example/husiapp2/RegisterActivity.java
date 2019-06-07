@@ -40,7 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
         final String mail = email.getText().toString();
 
         if(TextUtils.isEmpty(fname) || TextUtils.isEmpty(lname) || TextUtils.isEmpty(pword) || TextUtils.isEmpty(mail)){
-            Toast.makeText(this, "Field can't be empty",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Fields can't be empty",Toast.LENGTH_LONG).show();
             firstname.setHintTextColor(Color.RED);
             lastname.setHintTextColor(Color.RED);
             email.setHintTextColor(Color.RED);
